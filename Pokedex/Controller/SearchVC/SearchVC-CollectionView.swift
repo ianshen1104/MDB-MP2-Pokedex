@@ -33,12 +33,12 @@ extension SearchVC: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
         } else {
             cell.gridMode = false
         }
-        
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         idPressed = indexPath.row
+        segueNum = 0
         self.performSegue(withIdentifier: "ShowProfileSegue", sender: self)
     }
 

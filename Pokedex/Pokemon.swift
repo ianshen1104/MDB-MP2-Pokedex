@@ -15,7 +15,7 @@ import UIKit
         Poison, Fighting, Psychic, Fire, Rock, Flying, Steel, Ghost, Water
 */
 
-enum PokeType:String {
+public enum PokeType: String, CaseIterable {
     case Bug
     case Grass
     case Dark

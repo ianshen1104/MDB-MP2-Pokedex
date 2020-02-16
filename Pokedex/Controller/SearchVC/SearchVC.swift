@@ -16,6 +16,10 @@ class SearchVC: UIViewController {
     var filteredPokemons: [Pokemon] = []
     var idPressed: Int = 0
     var gridMode: Bool = true
+    var advancedSearchFilter: AdvancedSearchFilter = AdvancedSearchFilter()
+    var advancedSearchActivated: Bool = false
+    var randomRequested: Bool = false
+    var segueNum: Int = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,30 +28,43 @@ class SearchVC: UIViewController {
         searchController.searchBar.placeholder = "Search By Name"
         navigationItem.searchController = searchController
         definesPresentationContext = true
+        //let adcancedSearchVC = storyboard?.instantiateViewController(withIdentifier: "AdvancedSearchVC") as! AdvancedSearchVC
+        //advancedSearchVC.filterSender = self
 
         self.collectionView.backgroundColor = UIColor.clear
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        guard
-            segue.identifier == "ShowProfileSegue",
-            let indexPath = collectionView.indexPathsForSelectedItems,
-            let destinationVC = segue.destination as? ProfileVC
-            else {
+        switch segueNum {
+        case 0:
+            guard
+                segue.identifier == "ShowProfileSegue",
+                let indexPath = collectionView.indexPathsForSelectedItems,
+                let destinationVC = segue.destination as? ProfileVC
+                else {
+                    return
+            }
+            
+            let pokemon: Pokemon
+            if isFiltering {
+                pokemon = filteredPokemons[idPressed]
+            } else {
+                pokemon = pokemons[idPressed]
+            }
+            if let destinationVC = segue.destination as? ProfileVC {
+                destinationVC.pokemon = pokemon
+            }
+            break
+        case 1:
+            guard let destinationVC = segue.destination as? AdvancedSearchVC else {
                 return
+            }
+            destinationVC.filterSender = self
+            break
+        default:
+            print("segue error from SearchVC")
         }
         
-        
-        let pokemon: Pokemon
-        if isFiltering {
-            pokemon = filteredPokemons[idPressed]
-        } else {
-            pokemon = pokemons[idPressed]
-        }
-        if let destinationVC = segue.destination as? ProfileVC {
-            destinationVC.pokemon = pokemon
-        }
 
     }
     
@@ -67,7 +84,14 @@ class SearchVC: UIViewController {
     }
     
     @IBAction func advancedSearchPressed(_ sender: Any) {
+        segueNum = 1
         self.performSegue(withIdentifier: "ToAdvancedSearch", sender: self)
+        print("pressed")
+    }
+    
+    @IBAction func randomPressed(_ sender: Any) {
+        randomRequested = true
+        randomGenerateFilteredPokemons()
     }
     
     var isSearchBarEmpty: Bool {
@@ -75,14 +99,32 @@ class SearchVC: UIViewController {
     }
     
     var isFiltering: Bool {
-        return searchController.isActive && !isSearchBarEmpty
+        return (searchController.isActive && !isSearchBarEmpty) || advancedSearchActivated || randomRequested
     }
 
     func filterContentForSearchText(_ searchText: String) {
         filteredPokemons = pokemons.filter { (pokemon: Pokemon) -> Bool in
         return pokemon.name.lowercased().contains(searchText.lowercased())
       }
-      collectionView.reloadData()
+        advancedSearchActivated = false
+        randomRequested = false
+        collectionView.reloadData()
+    }
+    
+    func filterContentForAdvancedSearch(_ filterParameters: AdvancedSearchFilter) {
+        filteredPokemons = pokemons.filter { (pokemon: Pokemon) -> Bool in
+            return filterParameters.filterPokemon(pokemon)
+        }
+        collectionView.reloadData()
+    }
+    
+    func randomGenerateFilteredPokemons() {
+        filteredPokemons = []
+        for _ in 0..<20 {
+            let id = Int.random(in: 0 ... pokemons.count)
+            filteredPokemons.append(pokemons[id])
+        }
+        collectionView.reloadData()
     }
 }
 
@@ -90,5 +132,13 @@ extension SearchVC: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let searchBar = searchController.searchBar
         filterContentForSearchText(searchBar.text!)
+    }
+}
+
+extension SearchVC: FilterSendingDelegate {
+    func didPressSearch(filter: AdvancedSearchFilter) {
+        advancedSearchFilter = filter
+        filterContentForAdvancedSearch(filter)
+        advancedSearchActivated = true
     }
 }

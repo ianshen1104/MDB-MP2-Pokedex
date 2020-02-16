@@ -37,7 +37,6 @@ class ProfileVC: UIViewController {
             }
         }
         
-        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "profileBackground")!)
         nameTitle.text = pokemon.name
         idTitle.text = "#\(pokemon.id)"
         largeImage.image = pokemon.getLargeImage()
