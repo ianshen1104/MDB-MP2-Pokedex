@@ -13,4 +13,4 @@ Protocals and Delegates to send back filter object when navigating back
 ![Alt text](/profiles.jpg?raw=true "Profile pages include the name, id, image, tpyes, all the stats, and a moving gif")
 ![Alt text](/searchBar.jpg?raw=true "The search bar is dynamic and updates the list with the change of every character")
 ![Alt text](/advancedSearch.jpg?raw=true "User can input however many constraints they see fit before hitting search")
-![Alt text](/random.jpg?raw=true "The "Random" button randomly generates 20 pokemons in no particular order")
+![Alt text](/random.jpg?raw=true "The 'Random' button randomly generates 20 pokemons in no particular order")
